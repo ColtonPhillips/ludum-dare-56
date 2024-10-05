@@ -28,3 +28,30 @@ pub fn parse_creatures() -> Tokens {
     }
     tokens
 }
+
+#[derive(Debug)]
+pub struct Puzzle {
+    creature: String,
+    hint: String,
+}
+pub type Puzzles = Vec<Puzzle>;
+
+pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
+    let mut puzzles = Puzzles::new();
+    let mut h = String::from("");
+    for token in tokens {
+        match token {
+            Token::Hint(s) => {
+                h = s;
+            }
+            Token::Name(s) => {
+                puzzles.push(Puzzle {
+                    creature: s,
+                    hint: h.clone(),
+                });
+                h = String::from("");
+            }
+        }
+    }
+    puzzles
+}
