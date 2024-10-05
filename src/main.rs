@@ -8,6 +8,6 @@ fn main() -> io::Result<()> {
     println!("{tokens:?}");
 
     let puzzles = fetch_puzzles(tokens);
-    println!("{puzzles:?}");
+    println!("{puzzles:#?}");
     Ok(())
 }

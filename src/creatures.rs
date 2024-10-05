@@ -33,25 +33,53 @@ pub fn parse_creatures() -> Tokens {
 pub struct Puzzle {
     creature: String,
     hint: String,
+    naive_score: usize,
+    frequency_score: usize,
 }
 pub type Puzzles = Vec<Puzzle>;
 
 pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
     let mut puzzles = Puzzles::new();
-    let mut h = String::from("");
+    let mut hint_buffer = String::from("");
     for token in tokens {
         match token {
-            Token::Hint(s) => {
-                h = s;
+            Token::Hint(hint) => {
+                hint_buffer = hint;
             }
-            Token::Name(s) => {
+            Token::Name(name) => {
                 puzzles.push(Puzzle {
-                    creature: s,
-                    hint: h.clone(),
+                    creature: name.clone(),
+                    hint: hint_buffer.clone(),
+                    naive_score: calculate_naive_score(name.clone()),
+                    frequency_score: calculate_frequency_score(name.clone()),
                 });
-                h = String::from("");
+                hint_buffer = String::from("");
             }
         }
     }
     puzzles
+}
+
+fn calculate_naive_score(s: String) -> usize {
+    s.as_str().chars().filter(|c| !c.is_whitespace()).count()
+}
+
+// Based on 'you know what' game
+fn calculate_frequency_score(word: String) -> usize {
+    fn char_score(c: char) -> usize {
+        match c.to_ascii_uppercase() {
+            // Convert to uppercase for consistency
+            'A' | 'E' | 'I' | 'L' | 'N' | 'O' | 'R' | 'S' | 'T' | 'U' => 1,
+            'D' | 'G' => 2,
+            'B' | 'C' | 'M' | 'P' => 3,
+            'F' | 'H' | 'V' | 'W' | 'Y' => 4,
+            'K' => 5,
+            'J' | 'X' => 8,
+            'Q' | 'Z' => 10,
+            _ => 0, // Any non-alphabet character scores 0
+        }
+    }
+
+    // Calculate the total score for the given word
+    word.as_str().chars().map(char_score).sum()
 }
