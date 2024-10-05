@@ -31,10 +31,10 @@ pub fn parse_creatures() -> Tokens {
 
 #[derive(Debug)]
 pub struct Puzzle {
-    creature: String,
-    hint: String,
-    naive_score: usize,
-    frequency_score: usize,
+    pub creature: String,
+    pub hint: String,
+    pub naive_score: usize,
+    pub frequency_score: usize,
 }
 pub type Puzzles = Vec<Puzzle>;
 
@@ -48,7 +48,7 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
             }
             Token::Name(name) => {
                 puzzles.push(Puzzle {
-                    creature: name.clone(),
+                    creature: name.clone().to_uppercase(),
                     hint: hint_buffer.clone(),
                     naive_score: calculate_naive_score(name.clone()),
                     frequency_score: calculate_frequency_score(name.clone()),
@@ -82,4 +82,26 @@ fn calculate_frequency_score(word: String) -> usize {
 
     // Calculate the total score for the given word
     word.as_str().chars().map(char_score).sum()
+}
+
+pub fn convert_name_to_guess_format(creature: &str) -> String {
+    let guess = creature
+        .chars()
+        .map(|c| if c.is_alphabetic() { '_' } else { c })
+        .collect();
+    guess
+}
+
+pub fn update_question(creature: &str, question: &str, guess: &str) -> String {
+    let mut result: Vec<char> = question.chars().collect();
+    for (i, c) in creature.chars().enumerate() {
+        if c == guess.chars().next().unwrap() {
+            result[i] = c;
+        }
+    }
+    result.into_iter().collect()
+}
+
+pub fn is_question_winning(question: &str) -> bool {
+    !question.contains("_")
 }
