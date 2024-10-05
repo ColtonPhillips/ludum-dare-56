@@ -8,6 +8,7 @@ use std::io;
 
 struct Game {
     question: String,
+    letters_guessed: String,
 }
 
 fn main() -> io::Result<()> {
@@ -19,20 +20,25 @@ fn main() -> io::Result<()> {
 
     let mut game: Game = Game {
         question: String::from(""),
+        letters_guessed: String::from(""),
     };
 
     for puzzle in puzzles {
         // Setup
         game.question = convert_name_to_guess_format(&puzzle.creature);
+        game.letters_guessed = String::from("");
         loop {
             // Render the puzzle
             println!("???: {}", game.question);
+            println!("Letters Guessed: {}", game.letters_guessed);
 
             // Get User input and check if its a good guess
-            let guess: String = get_user_character();
+            let guess: String = get_user_character(&game.letters_guessed);
+
             let is_correct_guess =
                 puzzle.creature.contains(&guess) && !game.question.contains(&guess);
-
+            // Add a letter that you guessed
+            game.letters_guessed.push_str(&guess); // sort this alpha
             if is_correct_guess {
                 println!("Good Guess! {guess} is in there!");
                 // Update the question to show your progress
@@ -55,7 +61,7 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn get_user_character() -> String {
+fn get_user_character(letters_guessed: &str) -> String {
     let mut result = String::from("");
     let mut exit_loop = false;
     while !exit_loop {
@@ -63,13 +69,16 @@ fn get_user_character() -> String {
         let mut input = String::new();
         let stdin = io::stdin(); // We get `Stdin` here.
         stdin.read_line(&mut input).unwrap();
-        input = input.trim().to_string();
-        if input.len() == 1 && input.chars().all(|c| c.is_alphabetic()) {
+        input = input.trim().to_string().to_uppercase();
+
+        if letters_guessed.contains(input.as_str()) {
+            println!("You already guessed that letter, you silly billy goat Gus!");
+        } else if input.len() == 1 && input.chars().all(|c| c.is_alphabetic()) {
             result = input.clone();
             exit_loop = true;
         } else {
             println!("Enter a single letter pls!");
         }
     }
-    result.to_uppercase()
+    result
 }
