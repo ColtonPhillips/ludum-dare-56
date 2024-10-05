@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use regex::Regex;
 
 #[derive(Debug)]
@@ -34,6 +36,7 @@ pub struct Puzzle {
     pub creature: String,
     pub hint: String,
     pub naive_score: usize,
+    pub unique_score: usize,
     pub frequency_score: usize,
 }
 pub type Puzzles = Vec<Puzzle>;
@@ -51,17 +54,51 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
                     creature: name.clone().to_uppercase(),
                     hint: hint_buffer.clone(),
                     naive_score: calculate_naive_score(name.clone()),
+                    unique_score: calculate_unique_score(name.clone()),
                     frequency_score: calculate_frequency_score(name.clone()),
                 });
                 hint_buffer = String::from("");
             }
         }
     }
+    // Sort puzzles by the weighted sum of unique_score, naive_score, and frequency_score
+    let naive_weight = 0.5;
+    let unique_weight = 0.5;
+    let frequency_weight = 0.25;
+    puzzles.sort_by(|a, b| {
+        let a_total_score = (a.naive_score as f32 * naive_weight)
+            + (a.unique_score as f32 * unique_weight)
+            + (a.frequency_score as f32 * frequency_weight);
+
+        let b_total_score = (b.naive_score as f32 * naive_weight)
+            + (b.unique_score as f32 * unique_weight)
+            + (b.frequency_score as f32 * frequency_weight);
+
+        a_total_score.partial_cmp(&b_total_score).unwrap()
+    });
+
+    println!("{puzzles:#?}");
+
     puzzles
 }
 
 fn calculate_naive_score(s: String) -> usize {
     s.as_str().chars().filter(|c| !c.is_whitespace()).count()
+}
+
+fn calculate_unique_score(s: String) -> usize {
+    let mut unique_chars = HashSet::new(); // Set to track unique characters
+    let mut score = 0; // Initialize score to zero
+
+    for c in s.chars() {
+        if c.is_alphabetic() && !unique_chars.contains(&c) {
+            // Check if alphabetic and not already counted
+            unique_chars.insert(c); // Insert unique character
+            score += 1; // Increment score for each unique character
+        }
+    }
+
+    score
 }
 
 // Based on 'you know what' game
