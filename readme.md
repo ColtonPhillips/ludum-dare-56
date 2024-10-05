@@ -8,7 +8,7 @@ SOLO JAM
 ## Hangman, but the only category is tiny creatures"
 
 ```
-    -------
+    -------    <3 <3 <3
     _     -
     _     O
     _     _
@@ -18,6 +18,10 @@ SOLO JAM
     _   _    _
     _
     ---------------------
+
+    Question: The temporary state of the game
+    describing your current guess state
+    .. ... ..x .. x. x
 
 ```
 
@@ -29,7 +33,7 @@ SOLO JAM
 # Solutions
 
 - [ ] Simple game loop to take standard input
-- [ ] Simple whitespace-based parsing of 1-n categorys by file or !include_str
+- [x] Simple whitespace-based parsing of 1-n categorys by file or !include_str
 - [ ]
 - [ ]
 
