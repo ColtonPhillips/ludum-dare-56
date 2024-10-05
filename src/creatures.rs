@@ -31,7 +31,7 @@ pub fn parse_creatures() -> Tokens {
     tokens
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Puzzle {
     pub creature: String,
     pub hint: String,
@@ -76,8 +76,6 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
 
         a_total_score.partial_cmp(&b_total_score).unwrap()
     });
-
-    println!("{puzzles:#?}");
 
     puzzles
 }
