@@ -93,7 +93,8 @@ fn main() -> io::Result<()> {
             }
 
             if game.health < 1 {
-                panic!("You lost the game, shitheel!");
+                println!("You lost the game, shitheel!");
+                process::exit(0);
             }
         }
     }
