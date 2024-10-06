@@ -52,10 +52,10 @@ fn main() -> io::Result<()> {
         intro: "
 This game was built for the Ludum Dare 56 Solo Jam in October 2024
 
-Tiny Creature Party!
+Tiny Creatures Party!
 ===================
 
-You find yourself at a support group for TINY CREATURES! 
+You find yourself at a support group for SMOL CREATURES! 
 Someone forgot to bring any nametags so it's your job to
 guess the names of each attendant one LETTER at a time!
 Don't make too many mistakes or people will think you are
@@ -100,8 +100,8 @@ Type 'QUIT' to leave at any time.
         game.letters_guessed = String::from("");
         loop {
             let h_st = match puzzle.hint.as_str() {
-                "" => "".to_string(),                             // Return an empty String
-                _ => "Hint: ".to_string() + puzzle.hint.as_str(), // Convert "Hint" to a String, then concatenate
+                "" => "".to_string(),                                 // Return an empty String
+                _ => "Thoughts: ".to_string() + puzzle.hint.as_str(), // Convert "Hint" to a String, then concatenate
             };
 
             // Render the puzzle
@@ -176,7 +176,10 @@ Type 'QUIT' to leave at any time.
             }
         }
     }
-    paint.answer_result = format!("You won the game!");
+    println!("You won the game! Press ENTER to QUIT\nI didnt make the game loop yet, sorry :P");
+    let mut input = String::new();
+    let stdin = io::stdin(); // We get `Stdin` here.
+    stdin.read_line(&mut input).unwrap();
     Ok(())
 }
 
