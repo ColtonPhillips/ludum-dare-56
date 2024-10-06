@@ -49,7 +49,25 @@ impl Default for Paint {
 
 fn main() -> io::Result<()> {
     let mut paint = Paint {
-        intro: "Tiny Creature Party! Type one LETTER and Press ENTER to Guess!\nThis game was built for the Ludum Dare 56 Solo Jam in October 2024\n\nType 'QUIT' to stop playing at any time!\n\n".to_string(),
+        intro: "
+This game was built for the Ludum Dare 56 Solo Jam in October 2024
+
+Tiny Creature Party!
+===================
+
+You find yourself at a support group for TINY CREATURES! 
+Someone forgot to bring any nametags so it's your job to
+guess the names of each attendant one LETTER at a time!
+Don't make too many mistakes or people will think you are
+a bit of a narcicist. 
+
+RULES:
+=====
+Guess the creature's name ONE letter at a time. 
+Type 'QUIT' to leave at any time.
+
+"
+        .to_string(),
         ..Default::default()
     };
 
@@ -89,10 +107,10 @@ fn main() -> io::Result<()> {
             // Render the puzzle
             paint.guess = format!("???:   {}   {}", game.question, h_st).to_string();
             paint.status = format!(
-                "Health: {}\nLetters Remaining: {}\nCash: ${}\n",
+                "Health: {}  \\  Cash: ${}\nLetters Remaining: {}\n",
                 game.health,
+                game.cash,
                 find_unused_letters(&game.letters_guessed),
-                game.cash
             );
 
             let mut guess = String::from("");
@@ -143,7 +161,7 @@ fn main() -> io::Result<()> {
             if is_winning_question {
                 // You WON A PUZZLE, and solved the hangman
                 paint.answer_result = format!(
-                    "!!!!!!!Great job, the answer was indeed\n            {}\n",
+                    "!!!!!!!Great job, the answer was indeed\n\n            {}",
                     puzzle.creature
                 );
                 game.health += 3;
