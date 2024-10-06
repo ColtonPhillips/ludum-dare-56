@@ -81,9 +81,9 @@ fn just_play_some_tunes_bro() {
 }
 
 fn main() -> io::Result<()> {
-    // just_play_some_tunes_bro();
+    just_play_some_tunes_bro();
 
-    let mut bisect_cost: usize = 5;
+    let mut bisect_cost: usize = 15;
     let mut paint = Paint {
         intro: format!(
             "
@@ -97,7 +97,7 @@ You find yourself at a support group for SMOL CREATURES!
 Someone forgot to bring any nametags so it's your job to
 guess the names of each attendant one LETTER at a time!
 Don't make too many mistakes or people will think you are
-a bit of a narcicist. 
+a bit of a narcissist. 
 
 RULES:
 =====
@@ -106,7 +106,7 @@ Type 'BUY' to BUY-sect the unused guesses. Costs {bisect_cost}
 Type 'QUIT' to leave at any time.
 
 Press Enter to greet the first member
-of the Tiny Creature Support Group (I hope they snacks!)
+of the Tiny Creature Support Group (I hope they brought snacks!)
 "
         )
         .to_string(),
@@ -179,7 +179,7 @@ of the Tiny Creature Support Group (I hope they snacks!)
                         } else {
                             game.letters_guessed = bisect_guessable_letters(&puzzle, &game);
                             game.cash -= bisect_cost;
-                            bisect_cost = ((bisect_cost as f64) * 1.45).floor() as usize;
+                            bisect_cost = ((bisect_cost as f64) * 1.15).floor() as usize;
                             paint.answer_result =
                                 format!("You paid a friend to remove some of the options, but they want {bisect_cost} next time");
                         }
