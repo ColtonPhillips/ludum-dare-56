@@ -83,7 +83,7 @@ fn just_play_some_tunes_bro() {
 fn main() -> io::Result<()> {
     // just_play_some_tunes_bro();
 
-    let bisect_cost: usize = 15;
+    let mut bisect_cost: usize = 5;
     let mut paint = Paint {
         intro: format!(
             "
@@ -139,7 +139,7 @@ of the Tiny Creature Support Group (I hope they snacks!)
         question: String::from(""),
         letters_guessed: String::from(""),
         health: 100,
-        cash: 0,
+        cash: bisect_cost,
     };
 
     for puzzle in selected_puzzles {
@@ -179,8 +179,9 @@ of the Tiny Creature Support Group (I hope they snacks!)
                         } else {
                             game.letters_guessed = bisect_guessable_letters(&puzzle, &game);
                             game.cash -= bisect_cost;
+                            bisect_cost = ((bisect_cost as f64) * 1.45).floor() as usize;
                             paint.answer_result =
-                                format!("You paid a friend to remove some of the options");
+                                format!("You paid a friend to remove some of the options, but they want {bisect_cost} next time");
                         }
 
                         // XXX copy paste coding necessary because we didnt make a guess but wanna update status
