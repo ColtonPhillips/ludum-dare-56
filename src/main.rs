@@ -4,6 +4,11 @@ use creatures::{
     convert_name_to_guess_format, fetch_puzzles, is_question_winning, parse_creatures,
     update_question, Puzzle, Puzzles,
 };
+use crossterm::{
+    cursor::{Hide, MoveTo, Show},
+    terminal::{Clear, ClearType},
+    ExecutableCommand,
+};
 use rand::seq::SliceRandom;
 use std::{collections::HashSet, io, process};
 
@@ -11,6 +16,7 @@ struct Game {
     question: String,
     letters_guessed: String,
     health: usize,
+    cash: usize,
 }
 
 // fn select_random_puzzle(puzzles: &Vec<Puzzle>) -> Option<&Puzzle> {
@@ -23,8 +29,30 @@ struct Game {
 //     Some(&puzzles[random_index]) // Return the puzzle at the random index
 // }
 
+struct Paint {
+    intro: String,
+    guess: String,
+    status: String,
+    answer_result: String,
+}
+
+impl Default for Paint {
+    fn default() -> Self {
+        Paint {
+            intro: String::new(),
+            guess: String::new(),
+            status: String::new(),
+            answer_result: String::new(),
+        }
+    }
+}
+
 fn main() -> io::Result<()> {
-    println!("Little Creatures!\nType 'QUIT' at any time to leave the game");
+    let mut paint = Paint {
+        intro: "Tiny Creature Party! Type one LETTER and Press ENTER to Guess!\nThis game was built for the Ludum Dare 56 Solo Jam in October 2024\n\nType 'QUIT' to stop playing at any time!\n\n".to_string(),
+        ..Default::default()
+    };
+
     let tokens = parse_creatures();
     // println!("{tokens:?}");
 
@@ -45,6 +73,7 @@ fn main() -> io::Result<()> {
         question: String::from(""),
         letters_guessed: String::from(""),
         health: 100,
+        cash: 0,
     };
 
     for puzzle in selected_puzzles {
@@ -56,17 +85,44 @@ fn main() -> io::Result<()> {
                 "" => "".to_string(),                             // Return an empty String
                 _ => "Hint: ".to_string() + puzzle.hint.as_str(), // Convert "Hint" to a String, then concatenate
             };
+
             // Render the puzzle
-            println!("???: {} {}", game.question, h_st);
-            // println!("ans: {}", puzzle.creature);
-            println!(
-                "Health: {} / Letters Remaining: {}",
+            paint.guess = format!("???:   {}   {}", game.question, h_st).to_string();
+            paint.status = format!(
+                "Health: {}\nLetters Remaining: {}\nCash: ${}\n",
                 game.health,
-                find_unused_letters(&game.letters_guessed)
+                find_unused_letters(&game.letters_guessed),
+                game.cash
             );
 
-            // Get User input and check if its a good guess
-            let guess: String = get_user_character(&game.letters_guessed);
+            let mut guess = String::from("");
+            let mut exit_loop = false;
+            {
+                // This block handles user input
+                while !exit_loop {
+                    paint_terminal(&paint);
+                    // Get User input ( a single character)
+                    let mut input = String::new();
+                    let stdin = io::stdin(); // We get `Stdin` here.
+                    stdin.read_line(&mut input).unwrap();
+                    input = input.trim().to_string().to_uppercase();
+
+                    if input.contains("QUIT") {
+                        process::exit(0);
+                    } else if input == "".to_string() {
+                        continue;
+                    } else if game.letters_guessed.contains(input.as_str()) {
+                        paint.answer_result =
+                            format!("You already guessed that letter, you silly billy goat Gus!");
+                    } else if input.len() == 1 && input.chars().all(|c| c.is_alphabetic()) {
+                        guess = input.clone();
+                        exit_loop = true;
+                    } else {
+                        paint.answer_result = format!("Enter a single letter pls!");
+                    }
+                    paint.intro = "".to_string();
+                }
+            }
 
             let is_correct_guess =
                 puzzle.creature.contains(&guess) && !game.question.contains(&guess);
@@ -74,64 +130,43 @@ fn main() -> io::Result<()> {
             game.letters_guessed.push_str(&guess);
             // game.letters_guessed = sort_string_alphabetically(&game.letters_guessed);
             if is_correct_guess {
-                println!("{guess} was CORRECT!");
+                paint.answer_result = format!("{guess} was CORRECT!");
                 // Update the question to show your progress
                 game.question = update_question(&puzzle.creature, &game.question, &guess);
             } else {
+                paint.answer_result = format!("{guess} was INCORRECT!");
                 game.health -= 1;
             }
 
             // Check if you are a winner of the puzzle
             let is_winning_question = is_question_winning(&game.question);
-
-            // You won a puzzle, and solved the hangman
             if is_winning_question {
-                println!("Great job, the answer was indeed {}\n\n", puzzle.creature);
+                // You WON A PUZZLE, and solved the hangman
+                paint.answer_result = format!(
+                    "!!!!!!!Great job, the answer was indeed\n            {}\n",
+                    puzzle.creature
+                );
                 game.health += 3;
                 game.health = game.health.min(100);
+                game.cash += puzzle.frequency_score;
                 break;
             }
 
             if game.health < 1 {
-                println!("You lost the game, shitheel!");
+                paint.answer_result = format!("You lost the game, shitheel!");
                 process::exit(0);
             }
         }
     }
-    println!("You won the game!");
+    paint.answer_result = format!("You won the game!");
     Ok(())
 }
 
-fn get_user_character(letters_guessed: &str) -> String {
-    let mut result = String::from("");
-    let mut exit_loop = false;
-    while !exit_loop {
-        // Get User input ( a single character)
-        let mut input = String::new();
-        let stdin = io::stdin(); // We get `Stdin` here.
-        stdin.read_line(&mut input).unwrap();
-        input = input.trim().to_string().to_uppercase();
-
-        if input.contains("QUIT") {
-            process::exit(0);
-        }
-        if letters_guessed.contains(input.as_str()) {
-            println!("You already guessed that letter, you silly billy goat Gus!");
-        } else if input.len() == 1 && input.chars().all(|c| c.is_alphabetic()) {
-            result = input.clone();
-            exit_loop = true;
-        } else {
-            println!("Enter a single letter pls!");
-        }
-    }
-    result
-}
-
-fn sort_string_alphabetically(s: &str) -> String {
-    let mut chars: Vec<char> = s.chars().collect(); // Convert string to vector of characters
-    chars.sort(); // Sort the characters
-    chars.into_iter().collect() // Collect the sorted characters back into a string
-}
+// fn sort_string_alphabetically(s: &str) -> String {
+//     let mut chars: Vec<char> = s.chars().collect(); // Convert string to vector of characters
+//     chars.sort(); // Sort the characters
+//     chars.into_iter().collect() // Collect the sorted characters back into a string
+// }
 
 fn find_unused_letters(used: &str) -> String {
     // Create a set of all capitalized letters A-Z
@@ -148,4 +183,16 @@ fn find_unused_letters(used: &str) -> String {
     unused_vec.sort();
 
     unused_vec.iter().collect() // Collect the sorted characters back into a string
+}
+
+fn paint_terminal(paint: &Paint) {
+    let _ = io::stdout().execute(Hide);
+    let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
+    let _ = io::stdout().execute(Clear(ClearType::All));
+    let _ = io::stdout().execute(Show);
+
+    println!(
+        "{}\n\n{}{}\n{}\n",
+        &paint.answer_result, &paint.intro, &paint.status, &paint.guess,
+    );
 }
