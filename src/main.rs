@@ -52,8 +52,8 @@ fn main() -> io::Result<()> {
         intro: "
 This game was built for the Ludum Dare 56 Solo Jam in October 2024
 
-Tiny Creatures Party!
-===================
+Tiny Creatures Support Group!
+============================
 
 You find yourself at a support group for SMOL CREATURES! 
 Someone forgot to bring any nametags so it's your job to
