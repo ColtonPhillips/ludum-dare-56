@@ -33,7 +33,6 @@ struct Game {
 
 struct Paint {
     intro: String,
-    guess: String,
     status: String,
     answer_result: String,
 }
@@ -42,7 +41,6 @@ impl Default for Paint {
     fn default() -> Self {
         Paint {
             intro: String::new(),
-            guess: String::new(),
             status: String::new(),
             answer_result: String::new(),
         }
@@ -82,11 +80,12 @@ fn just_play_some_tunes_bro() {
 }
 
 fn main() -> io::Result<()> {
-    just_play_some_tunes_bro();
+    // just_play_some_tunes_bro();
 
     let mut paint = Paint {
         intro: "
 This game was built for the Ludum Dare 56 Solo Jam in October 2024
+Author: Colton Phillips
 
 Tiny Creatures Support Group!
 ============================
@@ -102,11 +101,19 @@ RULES:
 Guess the creature's name ONE letter at a time. 
 Type 'QUIT' to leave at any time.
 
+Press Enter to greet the first member
+of the Tiny Creature Support Group (I hope they snacks!)
 "
         .to_string(),
         ..Default::default()
     };
 
+    // Force user to sit and read the story
+    paint_terminal(&paint);
+    wait_for_user_input();
+    paint.intro = "".to_string();
+
+    // Get this party started
     let tokens = parse_creatures();
     // println!("{tokens:?}");
 
@@ -135,15 +142,13 @@ Type 'QUIT' to leave at any time.
         game.question = convert_name_to_guess_format(&puzzle.creature);
         game.letters_guessed = String::from("");
         loop {
-            let h_st = match puzzle.hint.as_str() {
-                "" => "".to_string(),                                 // Return an empty String
-                _ => "Thoughts: ".to_string() + puzzle.hint.as_str(), // Convert "Hint" to a String, then concatenate
-            };
+            // Render the puzzle and question
 
-            // Render the puzzle
-            paint.guess = format!("???:   {}   {}", game.question, h_st).to_string();
             paint.status = format!(
-                "Health: {}  \\  Cash: ${}\nLetters Remaining: {}\n",
+            "{}: '{}'\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
+                game.question,
+                "Hey man",
+                puzzle.hint,
                 game.health,
                 game.cash,
                 find_unused_letters(&game.letters_guessed),
@@ -174,7 +179,6 @@ Type 'QUIT' to leave at any time.
                     } else {
                         paint.answer_result = format!("Enter a single letter pls!");
                     }
-                    paint.intro = "".to_string();
                 }
             }
 
@@ -197,12 +201,16 @@ Type 'QUIT' to leave at any time.
             if is_winning_question {
                 // You WON A PUZZLE, and solved the hangman
                 paint.answer_result = format!(
-                    "!!!!!!!Great job, the answer was indeed\n\n            {}",
-                    puzzle.creature
+                    "\n\nYou: Hi, {}!\n\n{}:{}\n\nHealth++;\nCash++;\n\nPress Enter to greet the next tiny creature",
+                    puzzle.creature, puzzle.creature, "Sup!"
                 );
                 game.health += 3;
                 game.health = game.health.min(100);
                 game.cash += puzzle.frequency_score;
+
+                paint_terminal_winning_game(&paint);
+                wait_for_user_input();
+                paint.answer_result = "".to_string();
                 break;
             }
 
@@ -217,6 +225,14 @@ Type 'QUIT' to leave at any time.
     let stdin = io::stdin(); // We get `Stdin` here.
     stdin.read_line(&mut input).unwrap();
     Ok(())
+}
+
+fn wait_for_user_input() {
+    // Poll stdin, to let user (force them) to read the story
+    let mut input = String::new();
+    let stdin = io::stdin();
+    // We get `Stdin` here.
+    stdin.read_line(&mut input).unwrap();
 }
 
 // fn sort_string_alphabetically(s: &str) -> String {
@@ -249,7 +265,16 @@ fn paint_terminal(paint: &Paint) {
     let _ = io::stdout().execute(Show);
 
     println!(
-        "{}\n\n{}{}\n{}\n",
-        &paint.answer_result, &paint.intro, &paint.status, &paint.guess,
+        "{}\n\n{}\n{}\n",
+        &paint.intro, &paint.status, &paint.answer_result
     );
+}
+
+fn paint_terminal_winning_game(paint: &Paint) {
+    let _ = io::stdout().execute(Hide);
+    let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
+    let _ = io::stdout().execute(Clear(ClearType::All));
+    let _ = io::stdout().execute(Show);
+
+    println!("{}", &paint.answer_result);
 }
