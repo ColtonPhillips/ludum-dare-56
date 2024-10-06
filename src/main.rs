@@ -14,6 +14,7 @@ use rodio::{Decoder, OutputStream, Sink, Source};
 use std::io::Cursor;
 use std::{collections::HashSet, io, process, thread};
 
+#[derive(Debug)]
 struct Game {
     question: String,
     letters_guessed: String,
@@ -82,8 +83,10 @@ fn just_play_some_tunes_bro() {
 fn main() -> io::Result<()> {
     // just_play_some_tunes_bro();
 
+    let bisect_cost: usize = 15;
     let mut paint = Paint {
-        intro: "
+        intro: format!(
+            "
 This game was built for the Ludum Dare 56 Solo Jam in October 2024
 Author: Colton Phillips
 
@@ -98,12 +101,14 @@ a bit of a narcicist.
 
 RULES:
 =====
-Guess the creature's name ONE letter at a time. 
+Guess the creature's name ONE letter at a time.
+Type 'BUY' to BUY-sect the unused guesses. Costs {bisect_cost}
 Type 'QUIT' to leave at any time.
 
 Press Enter to greet the first member
 of the Tiny Creature Support Group (I hope they snacks!)
 "
+        )
         .to_string(),
         ..Default::default()
     };
@@ -166,7 +171,30 @@ of the Tiny Creature Support Group (I hope they snacks!)
                     stdin.read_line(&mut input).unwrap();
                     input = input.trim().to_string().to_uppercase();
 
-                    if input.contains("QUIT") {
+                    if input.contains("BUY") {
+                        // this has a bug where you never remove the last unused letter on odd amounts
+                        if game.cash < bisect_cost {
+                            paint.answer_result =
+                                format!("You can't buy it. You need ${bisect_cost} to buy-sect the unused letters!");
+                        } else {
+                            game.letters_guessed = bisect_guessable_letters(&puzzle, &game);
+                            game.cash -= bisect_cost;
+                            paint.answer_result =
+                                format!("You paid a friend to remove some of the options");
+                        }
+
+                        // XXX copy paste coding necessary because we didnt make a guess but wanna update status
+                        paint.status = format!(
+                                "{}: '{}'\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
+                                    game.question,
+                                    "Hey man",
+                                    puzzle.hint,
+                                    game.health,
+                                    game.cash,
+                                    find_unused_letters(&game.letters_guessed),
+                                );
+                        paint_terminal(&paint);
+                    } else if input.contains("QUIT") {
                         process::exit(0);
                     } else if input == "".to_string() {
                         continue;
@@ -225,6 +253,37 @@ of the Tiny Creature Support Group (I hope they snacks!)
     let stdin = io::stdin(); // We get `Stdin` here.
     stdin.read_line(&mut input).unwrap();
     Ok(())
+}
+
+fn bisect_guessable_letters(puzzle: &Puzzle, game: &Game) -> String {
+    let all_letters: HashSet<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
+    let creature_letters: HashSet<char> = puzzle.creature.chars().collect();
+    let letters_guessed: HashSet<char> = game.letters_guessed.chars().collect();
+    let mut letters_guessed_v = game.letters_guessed.clone();
+    let all_letters_less_creature_name: HashSet<char> = all_letters
+        .difference(&creature_letters)
+        .cloned()
+        .collect::<HashSet<char>>();
+    let all_letter_less_creature_name_and_guessed_letters = all_letters_less_creature_name
+        .difference(&letters_guessed)
+        .cloned()
+        .collect::<HashSet<char>>();
+
+    let letters_vec: Vec<char> = all_letter_less_creature_name_and_guessed_letters
+        .into_iter()
+        .collect();
+
+    let half_count = letters_vec.len() / 2;
+
+    let mut rng = rand::thread_rng();
+
+    let random_letters: Vec<char> = letters_vec
+        .choose_multiple(&mut rng, half_count)
+        .cloned()
+        .collect();
+
+    letters_guessed_v.extend(random_letters);
+    letters_guessed_v
 }
 
 fn wait_for_user_input() {
