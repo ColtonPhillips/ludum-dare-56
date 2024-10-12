@@ -9,7 +9,7 @@ use crossterm::{
     terminal::{Clear, ClearType},
     ExecutableCommand,
 };
-use rand::seq::SliceRandom;
+use rand::{seq::SliceRandom, Rng};
 use rodio::{Decoder, OutputStream, Sink, Source};
 use std::io::Cursor;
 use std::{collections::HashSet, io, process, thread};
@@ -223,8 +223,10 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
                 // Update the question to show your progress
                 game.question = update_question(&puzzle.creature, &game.question, &guess);
             } else {
-                paint.answer_result = format!("{guess} was INCORRECT!");
-                game.health -= 1;
+                let psychic_damage = rand::thread_rng().gen_range(1..5);
+                paint.answer_result =
+                    format!("{guess} was INCORRECT!\nGuest did {psychic_damage} psychic damage to your ego!");
+                game.health -= psychic_damage;
             }
 
             // Check if you are a winner of the puzzle
@@ -235,7 +237,7 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
                     "\n\nYou: Hi, {}!\n\n{}:{}\n\nHealth++;\nCash++;\n\nPress Enter to greet the next tiny creature",
                     puzzle.creature, puzzle.creature, "Sup!"
                 );
-                game.health += 3;
+                game.health += 5;
                 game.health = game.health.min(100);
                 game.cash += puzzle.frequency_score;
 
