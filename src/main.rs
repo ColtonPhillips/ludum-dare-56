@@ -81,7 +81,9 @@ fn just_play_some_tunes_bro() {
 }
 
 fn main() -> io::Result<()> {
-    just_play_some_tunes_bro();
+    if cfg!(feature = "audio") {
+        just_play_some_tunes_bro();
+    }
 
     let mut bisect_cost: usize = 15;
     let mut paint = Paint {
