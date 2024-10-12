@@ -102,10 +102,10 @@ fn calculate_name_length_hint(name: String) -> String {
             // ____
             // *4**
             let name_len_as_str = word.len().to_string();
-            let num_of_asterisks_used = word.len() - name_len_as_str.len();
-            let name_len_index = (num_of_asterisks_used as f64 / 2.0).floor() as usize;
+            let num_of_whitespace_used = word.len() - name_len_as_str.len();
+            let name_len_index = (num_of_whitespace_used as f64 / 2.0).floor() as usize;
             let left_whitespace = " ".repeat(name_len_index);
-            let right_whitespace = " ".repeat(num_of_asterisks_used - name_len_index);
+            let right_whitespace = " ".repeat(num_of_whitespace_used - name_len_index);
             let word_length_hint: String =
                 format!("{}{}{}", left_whitespace, name_len_as_str, right_whitespace);
             word_length_hint
