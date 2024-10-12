@@ -41,6 +41,7 @@ pub fn parse_creatures() -> Tokens {
 #[derive(Debug, Clone)]
 pub struct Puzzle {
     pub creature: String,
+    pub creature_length_hint: String,
     pub hint: String,
     pub naive_score: usize,
     pub unique_score: usize,
@@ -59,6 +60,7 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
             Token::Name(name) => {
                 puzzles.push(Puzzle {
                     creature: name.clone().to_uppercase(),
+                    creature_length_hint: calculate_name_length_hint(name.clone()),
                     hint: hint_buffer.clone(),
                     naive_score: calculate_naive_score(name.clone()),
                     unique_score: calculate_unique_score(name.clone()),
@@ -85,6 +87,30 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
     });
 
     puzzles
+}
+
+// THE MOON IS LEVIMATATIN LEVIMATATING
+// ___ ____ __ ___________ ____________
+// *3* *4** 2* ****10***** *****11*****
+
+fn calculate_name_length_hint(name: String) -> String {
+    let x: Vec<String> = name
+        .split_ascii_whitespace()
+        .map(|s| s.trim().to_string())
+        .collect();
+    x.iter()
+        .map(|s| {
+            let half_len = s.len() / 2;
+            let word_length_hint: String = format!(
+                "{}{}{}",
+                " ".repeat(half_len),
+                s.len(),
+                " ".repeat(half_len - 1 + (s.len() - half_len))
+            );
+            word_length_hint
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
 }
 
 fn calculate_naive_score(s: String) -> usize {
