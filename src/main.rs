@@ -1,8 +1,8 @@
 mod creatures;
 
 use creatures::{
-    convert_name_to_guess_format, fetch_puzzles, is_question_winning, parse_creatures,
-    update_question, Puzzle, Puzzles,
+    convert_name_to_guess_format, fetch_greetings, fetch_puzzles, is_question_winning,
+    parse_creatures, update_question, Puzzle, Puzzles,
 };
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
@@ -126,6 +126,9 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
 
     let puzzles = fetch_puzzles(tokens);
     // println!("{puzzles:#?}");
+
+    let greetings = fetch_greetings();
+
     let num_buckets = 10;
     let chunk_size = (puzzles.len() + num_buckets - 1) / num_buckets;
     let puzzle_buckets: Vec<&[Puzzle]> = puzzles.chunks(chunk_size).collect();
@@ -148,13 +151,14 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
         // Setup
         game.question = convert_name_to_guess_format(&puzzle.creature);
         game.letters_guessed = String::from("");
+        let rnd_greeting = greetings.choose(&mut rand::thread_rng()).unwrap();
         loop {
             // Render the puzzle and question
 
             paint.status = format!(
             "{}: '{}'\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                 game.question,
-                "Hey man",
+                rnd_greeting,
                 puzzle.hint,
                 game.health,
                 game.cash,
@@ -190,7 +194,7 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
                         paint.status = format!(
                                 "{}: '{}'\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                                     game.question,
-                                    "Hey man",
+                                    rnd_greeting,
                                     puzzle.hint,
                                     game.health,
                                     game.cash,

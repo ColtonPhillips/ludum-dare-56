@@ -9,6 +9,13 @@ pub enum Token {
 }
 pub type Tokens = Vec<Token>;
 
+pub fn fetch_greetings() -> Vec<String> {
+    include_str!("greetings.txt")
+        .lines()
+        .map(|lines| lines.trim().to_string())
+        .collect()
+}
+
 pub fn parse_creatures() -> Tokens {
     let creatures = include_str!("creatures.txt");
     let mut tokens: Tokens = Tokens::new();
