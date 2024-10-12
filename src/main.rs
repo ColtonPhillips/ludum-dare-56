@@ -156,7 +156,7 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
             // Render the puzzle and question
 
             paint.status = format!(
-            "{}: '{}'\n{}\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
+            "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                 game.question,
                 rnd_greeting,
                 puzzle.creature_length_hint,
@@ -193,9 +193,10 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
 
                         // XXX copy paste coding necessary because we didnt make a guess but wanna update status
                         paint.status = format!(
-                                "{}: '{}'\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
+                                "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                                     game.question,
                                     rnd_greeting,
+                                    puzzle.creature_length_hint,
                                     puzzle.hint,
                                     game.health,
                                     game.cash,

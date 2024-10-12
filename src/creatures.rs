@@ -89,24 +89,25 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
     puzzles
 }
 
-// THE MOON IS LEVIMATATIN LEVIMATATING
-// ___ ____ __ ___________ ____________
-// *3* *4** 2* ****10***** *****11*****
-
 fn calculate_name_length_hint(name: String) -> String {
     let x: Vec<String> = name
         .split_ascii_whitespace()
         .map(|s| s.trim().to_string())
         .collect();
     x.iter()
-        .map(|s| {
-            let half_len = s.len() / 2;
-            let word_length_hint: String = format!(
-                "{}{}{}",
-                " ".repeat(half_len),
-                s.len(),
-                " ".repeat(half_len - 1 + (s.len() - half_len))
-            );
+        .map(|word| {
+            // For each creature name's word, find the number of whitespace on each side of the
+            // creature name's length hint e.g. below is a word of len 4
+            // MITE
+            // ____
+            // *4**
+            let name_len_as_str = word.len().to_string();
+            let num_of_asterisks_used = word.len() - name_len_as_str.len();
+            let name_len_index = (num_of_asterisks_used as f64 / 2.0).floor() as usize;
+            let left_whitespace = " ".repeat(name_len_index);
+            let right_whitespace = " ".repeat(num_of_asterisks_used - name_len_index);
+            let word_length_hint: String =
+                format!("{}{}{}", left_whitespace, name_len_as_str, right_whitespace);
             word_length_hint
         })
         .collect::<Vec<String>>()
