@@ -20,6 +20,7 @@ struct Game {
     letters_guessed: String,
     health: usize,
     cash: usize,
+    hints_unlocked: usize,
 }
 
 // fn select_random_puzzle(puzzles: &Vec<Puzzle>) -> Option<&Puzzle> {
@@ -145,27 +146,29 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
         letters_guessed: String::from(""),
         health: 100,
         cash: bisect_cost,
+        hints_unlocked: 1,
     };
 
     for puzzle in selected_puzzles {
+        game.hints_unlocked = 1;
+
         // Setup
         game.question = convert_name_to_guess_format(&puzzle.creature);
         game.letters_guessed = String::from("");
         let rnd_greeting = greetings.choose(&mut rand::thread_rng()).unwrap();
 
-        loop {
-            // Render the puzzle and question
-            let mut rnd_hint = puzzle
-                .hints
-                .choose(&mut rand::thread_rng())
-                .unwrap()
-                .clone();
-            // In rnd hint, remove the unguessed letters from the hint feature
-            //
-            rnd_hint = reveal_guessed_letters(&rnd_hint, &game.letters_guessed);
+        // Get hints in random order, and allow user to unlock them as they play
+        let mut rnd_hints = puzzle.hints.clone();
+        rnd_hints.shuffle(&mut rand::thread_rng());
 
+        loop {
+            // update rnd_hints to make sure the user can see hint messaging from unlocked letters
+            let mut rnd_hint =
+                reveal_guessed_letters(&rnd_hints, &game.letters_guessed, game.hints_unlocked);
+
+            // Render the puzzle and question
             paint.status = format!(
-            "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
+            "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts:\n{}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                 game.question,
                 rnd_greeting,
                 puzzle.creature_length_hint,
@@ -201,8 +204,13 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
                         }
 
                         // XXX copy paste coding necessary because we didnt make a guess but wanna update status
+                        rnd_hint = reveal_guessed_letters(
+                            &rnd_hints,
+                            &game.letters_guessed,
+                            game.hints_unlocked,
+                        );
                         paint.status = format!(
-                                "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
+                                "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts:\n{}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                                     game.question,
                                     rnd_greeting,
                                     puzzle.creature_length_hint,
@@ -238,6 +246,7 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
                 // Update the question to show your progress
                 game.question = update_question(&puzzle.creature, &game.question, &guess);
             } else {
+                game.hints_unlocked += 1; // You got something wrong, but you learned something new!
                 let psychic_damage = rand::thread_rng().gen_range(1..5);
                 paint.answer_result =
                     format!("{guess} was INCORRECT!\nGuest did {psychic_damage} psychic damage to your ego!");
@@ -276,19 +285,31 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
 }
 
 // kinda shit
-fn reveal_guessed_letters(input: &str, guessed: &str) -> String {
+fn reveal_guessed_letters(input: &Vec<String>, guessed: &str, count_hints: usize) -> String {
     let mut inside_braces = false;
     let mut result = String::new();
-
-    for c in input.chars() {
-        if c == '{' {
-            inside_braces = true;
-        } else if c == '}' {
-            inside_braces = false;
-        } else if inside_braces && c.is_alphabetic() && !guessed.contains(c.to_ascii_uppercase()) {
-            result.push('_'); // Replace unguessed letters inside curly braces
+    let mut good_old_fashioned_i = 1;
+    for s in input {
+        result.push_str("- ");
+        for c in s.chars() {
+            if c == '{' {
+                inside_braces = true;
+            } else if c == '}' {
+                inside_braces = false;
+            } else if inside_braces
+                && c.is_alphabetic()
+                && !guessed.contains(c.to_ascii_uppercase())
+            {
+                result.push('_'); // Replace unguessed letters inside curly braces
+            } else {
+                result.push(c); // Keep everything else as is
+            }
+        }
+        result.push('\n');
+        if good_old_fashioned_i >= count_hints {
+            break;
         } else {
-            result.push(c); // Keep everything else as is
+            good_old_fashioned_i += 1;
         }
     }
 
