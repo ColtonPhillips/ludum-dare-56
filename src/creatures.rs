@@ -5,9 +5,10 @@ use regex::Regex;
 #[derive(Debug)]
 pub enum Token {
     Name(String),
-    Hint(String),
+    Hint(Vec<String>),
 }
 pub type Tokens = Vec<Token>;
+pub type Hints = Vec<String>;
 
 pub fn fetch_greetings() -> Vec<String> {
     include_str!("greetings.txt")
@@ -26,8 +27,14 @@ pub fn parse_creatures() -> Tokens {
                 // Extract a hint! if one exists, and tokenize it
                 let re = Regex::new(r#""([^"]+)""#).unwrap();
                 if let Some(caps) = re.captures(line) {
-                    let h = caps.get(1).unwrap().as_str();
-                    tokens.push(Token::Hint(h.to_string()));
+                    let hint = caps.get(1).unwrap().as_str();
+                    let hints: Hints = hint
+                        .to_string()
+                        .split("|")
+                        .map(|s| s.trim().to_string())
+                        .collect();
+
+                    tokens.push(Token::Hint(hints.clone()));
                 }
                 // Then extract the line for the creature and trim whitespace
                 let line = re.replace(line, "").to_string();
@@ -42,7 +49,7 @@ pub fn parse_creatures() -> Tokens {
 pub struct Puzzle {
     pub creature: String,
     pub creature_length_hint: String,
-    pub hint: String,
+    pub hints: Hints,
     pub naive_score: usize,
     pub unique_score: usize,
     pub frequency_score: usize,
@@ -51,7 +58,7 @@ pub type Puzzles = Vec<Puzzle>;
 
 pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
     let mut puzzles = Puzzles::new();
-    let mut hint_buffer = String::from("");
+    let mut hint_buffer: Hints = vec![];
     for token in tokens {
         match token {
             Token::Hint(hint) => {
@@ -61,12 +68,12 @@ pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
                 puzzles.push(Puzzle {
                     creature: name.clone().to_uppercase(),
                     creature_length_hint: calculate_name_length_hint(name.clone()),
-                    hint: hint_buffer.clone(),
+                    hints: hint_buffer.clone(),
                     naive_score: calculate_naive_score(name.clone()),
                     unique_score: calculate_unique_score(name.clone()),
                     frequency_score: calculate_frequency_score(name.clone()),
                 });
-                hint_buffer = String::from("");
+                hint_buffer = vec![];
             }
         }
     }

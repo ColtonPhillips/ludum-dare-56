@@ -152,15 +152,16 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
         game.question = convert_name_to_guess_format(&puzzle.creature);
         game.letters_guessed = String::from("");
         let rnd_greeting = greetings.choose(&mut rand::thread_rng()).unwrap();
+
         loop {
             // Render the puzzle and question
-
+            let rnd_hint = puzzle.hints.choose(&mut rand::thread_rng()).unwrap();
             paint.status = format!(
             "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                 game.question,
                 rnd_greeting,
                 puzzle.creature_length_hint,
-                puzzle.hint,
+                rnd_hint,
                 game.health,
                 game.cash,
                 find_unused_letters(&game.letters_guessed),
@@ -197,7 +198,7 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
                                     game.question,
                                     rnd_greeting,
                                     puzzle.creature_length_hint,
-                                    puzzle.hint,
+                                    rnd_hint,
                                     game.health,
                                     game.cash,
                                     find_unused_letters(&game.letters_guessed),
