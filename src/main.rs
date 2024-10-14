@@ -155,7 +155,15 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
 
         loop {
             // Render the puzzle and question
-            let rnd_hint = puzzle.hints.choose(&mut rand::thread_rng()).unwrap();
+            let mut rnd_hint = puzzle
+                .hints
+                .choose(&mut rand::thread_rng())
+                .unwrap()
+                .clone();
+            // In rnd hint, remove the unguessed letters from the hint feature
+            //
+            rnd_hint = reveal_guessed_letters(&rnd_hint, &game.letters_guessed);
+
             paint.status = format!(
             "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts: {}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
                 game.question,
@@ -265,6 +273,26 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
     let stdin = io::stdin(); // We get `Stdin` here.
     stdin.read_line(&mut input).unwrap();
     Ok(())
+}
+
+// kinda shit
+fn reveal_guessed_letters(input: &str, guessed: &str) -> String {
+    let mut inside_braces = false;
+    let mut result = String::new();
+
+    for c in input.chars() {
+        if c == '{' {
+            inside_braces = true;
+        } else if c == '}' {
+            inside_braces = false;
+        } else if inside_braces && c.is_alphabetic() && !guessed.contains(c.to_ascii_uppercase()) {
+            result.push('_'); // Replace unguessed letters inside curly braces
+        } else {
+            result.push(c); // Keep everything else as is
+        }
+    }
+
+    result
 }
 
 fn bisect_guessable_letters(puzzle: &Puzzle, game: &Game) -> String {
