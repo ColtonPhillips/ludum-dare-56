@@ -1,0 +1,7 @@
+move "buy" instructions into main game
+let user type "help" to explain rules
+explain the game story before the rules to not overburden them
+explain that the buy makes it easier by removing some of the unused guesses
+explain that the guests are a combination of tiny animals, creatures, myths, and pop culture references
+neha did not immediately understand that the ____ name was the thing they were guessing.
+a more straight forward played out tutorial would be fire (basically going over the stuff we talk through together but in the game)
