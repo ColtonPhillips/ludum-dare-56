@@ -1,118 +1,25 @@
+mod copy;
 mod creatures;
+mod model;
+mod tunes;
 
-use creatures::{
-    convert_name_to_guess_format, fetch_greetings, fetch_puzzles, is_question_winning,
-    parse_creatures, update_question, Puzzle, Puzzles,
-};
+use creatures::*;
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
     terminal::{Clear, ClearType},
     ExecutableCommand,
 };
+use model::*;
 use rand::{seq::SliceRandom, Rng};
-use rodio::{Decoder, OutputStream, Sink, Source};
-use std::io::Cursor;
-use std::{collections::HashSet, io, process, thread};
-
-#[derive(Debug)]
-struct Game {
-    question: String,
-    letters_guessed: String,
-    health: usize,
-    cash: usize,
-    hints_unlocked: usize,
-}
-
-// fn select_random_puzzle(puzzles: &Vec<Puzzle>) -> Option<&Puzzle> {
-//     if puzzles.is_empty() {
-//         return None; // If the Vec is empty, return None
-//     }
-
-//     let mut rng = rand::thread_rng(); // Create a random number generator
-//     let random_index = rng.gen_range(0..puzzles.len()); // Generate a random index within the vector bounds
-//     Some(&puzzles[random_index]) // Return the puzzle at the random index
-// }
-
-struct Paint {
-    intro: String,
-    status: String,
-    answer_result: String,
-}
-
-impl Default for Paint {
-    fn default() -> Self {
-        Paint {
-            intro: String::new(),
-            status: String::new(),
-            answer_result: String::new(),
-        }
-    }
-}
-
-fn just_play_some_tunes_bro() {
-    // Spawn a new thread to play the music
-    thread::spawn(|| {
-        // Create an output stream
-        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-
-        // Create a sink to manage audio playback
-        let sink = Sink::try_new(&stream_handle).unwrap();
-
-        // Embed the audio file as bytes
-        let music_data = include_bytes!("music.mp3");
-        let cursor = Cursor::new(music_data);
-
-        // Create a decoder from the embedded data
-        let source = Decoder::new(cursor).unwrap();
-
-        // Loop the audio indefinitely using the `repeat_infinite` method
-        let repeated_source = source.repeat_infinite();
-
-        // Play the audio asynchronously
-        sink.append(repeated_source);
-
-        // Detach the sink so that it plays the audio independently
-        sink.detach();
-
-        // Keep the thread alive to allow the music to continue playing
-        loop {
-            thread::park(); // Park the thread to keep it alive
-        }
-    });
-}
+use std::{collections::HashSet, io, process};
 
 fn main() -> io::Result<()> {
     if cfg!(feature = "audio") {
-        just_play_some_tunes_bro();
+        tunes::play_bg_music();
     }
 
-    let mut bisect_cost: usize = 15;
     let mut paint = Paint {
-        intro: format!(
-            "
-This game was built for the Ludum Dare 56 Solo Jam in October 2024
-Author: Colton Phillips
-
-Tiny Creatures Support Group!
-============================
-
-You find yourself at a support group for SMOL CREATURES! 
-Someone forgot to bring any nametags so it's your job to
-guess the names of each attendant one LETTER at a time!
-Don't make too many mistakes or people will think you are
-a bit of a narcissist. 
-
-RULES:
-=====
-Guess the creature's name ONE letter at a time.
-Type 'BUY' to BUY-sect the unused guesses. Costs {bisect_cost}
-Type 'QUIT' to leave at any time.
-
-Press Enter to greet the first member
-of the Tiny Creature Support Group (I hope they brought snacks!)
-"
-        )
-        .to_string(),
+        intro: copy::SKIPPABLE_INTRO.to_string(),
         ..Default::default()
     };
 
@@ -141,13 +48,7 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
         selected_puzzles.push(p.clone());
     }
 
-    let mut game: Game = Game {
-        question: String::from(""),
-        letters_guessed: String::from(""),
-        health: 100,
-        cash: bisect_cost,
-        hints_unlocked: 1,
-    };
+    let mut game = Game::default();
 
     for puzzle in selected_puzzles {
         game.hints_unlocked = 1;
@@ -192,15 +93,17 @@ of the Tiny Creature Support Group (I hope they brought snacks!)
 
                     if input.contains("BUY") {
                         // this has a bug where you never remove the last unused letter on odd amounts
-                        if game.cash < bisect_cost {
-                            paint.answer_result =
-                                format!("You can't buy it. You need ${bisect_cost} to buy-sect the unused letters!");
+                        if game.cash < game.bisect_cost {
+                            paint.answer_result = format!(
+                                "You can't buy it. You need ${} to buy-sect the unused letters!",
+                                game.bisect_cost
+                            );
                         } else {
                             game.letters_guessed = bisect_guessable_letters(&puzzle, &game);
-                            game.cash -= bisect_cost;
-                            bisect_cost = ((bisect_cost as f64) * 1.15).floor() as usize;
+                            game.cash -= game.bisect_cost;
+                            game.bisect_cost = ((game.bisect_cost as f64) * 1.15).floor() as usize;
                             paint.answer_result =
-                                format!("You paid a friend to remove some of the options, but they want {bisect_cost} next time");
+                                format!("You paid a friend to remove some of the options, but they want {} next time", game.bisect_cost);
                         }
 
                         // XXX copy paste coding necessary because we didnt make a guess but wanna update status
