@@ -1,6 +1,7 @@
 mod copy;
 mod creatures;
 mod model;
+mod puzzle;
 mod tunes;
 
 use creatures::*;
@@ -10,6 +11,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use model::*;
+use puzzle::*;
 use rand::{seq::SliceRandom, Rng};
 
 use std::{collections::HashSet, io, process};
