@@ -11,6 +11,7 @@ use crossterm::{
 };
 use model::*;
 use rand::{seq::SliceRandom, Rng};
+
 use std::{collections::HashSet, io, process};
 
 fn main() -> io::Result<()> {
@@ -29,24 +30,8 @@ fn main() -> io::Result<()> {
     paint.intro = "".to_string();
 
     // Get this party started
-    let tokens = parse_creatures();
-    // println!("{tokens:?}");
-
-    let puzzles = fetch_puzzles(tokens);
-    // println!("{puzzles:#?}");
-
+    let selected_puzzles = fetch_selected_puzzles();
     let greetings = fetch_greetings();
-
-    let num_buckets = 10;
-    let chunk_size = (puzzles.len() + num_buckets - 1) / num_buckets;
-    let puzzle_buckets: Vec<&[Puzzle]> = puzzles.chunks(chunk_size).collect();
-
-    let mut selected_puzzles: Puzzles = Puzzles::new();
-
-    for bucket in puzzle_buckets {
-        let p = bucket.choose(&mut rand::thread_rng()).unwrap();
-        selected_puzzles.push(p.clone());
-    }
 
     let mut game = Game::default();
 

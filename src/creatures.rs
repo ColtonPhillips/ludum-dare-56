@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
+use rand::seq::SliceRandom;
 use regex::Regex;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub enum Token {
@@ -54,9 +54,39 @@ pub struct Puzzle {
     pub unique_score: usize,
     pub frequency_score: usize,
 }
+impl Default for Puzzle {
+    fn default() -> Self {
+        Puzzle {
+            creature: "".to_string(),
+            creature_length_hint: "".to_string(),
+            hints: vec![],
+            naive_score: 0,
+            unique_score: 0,
+            frequency_score: 0,
+        }
+    }
+}
+
 pub type Puzzles = Vec<Puzzle>;
 
-pub fn fetch_puzzles(tokens: Tokens) -> Puzzles {
+pub fn fetch_selected_puzzles() -> Puzzles {
+    let puzzles: Puzzles = fetch_puzzles();
+
+    let num_buckets = 10;
+    let chunk_size = (puzzles.len() + num_buckets - 1) / num_buckets;
+    let puzzle_buckets: Vec<&[Puzzle]> = puzzles.chunks(chunk_size).collect();
+
+    let mut selected_puzzles: Puzzles = Puzzles::new();
+
+    for bucket in puzzle_buckets {
+        let p = bucket.choose(&mut rand::thread_rng()).unwrap();
+        selected_puzzles.push(p.clone());
+    }
+    return selected_puzzles.clone();
+}
+
+pub fn fetch_puzzles() -> Puzzles {
+    let tokens = parse_creatures();
     let mut puzzles = Puzzles::new();
     let mut hint_buffer: Hints = vec![];
     for token in tokens {
