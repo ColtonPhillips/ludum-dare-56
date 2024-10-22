@@ -46,22 +46,18 @@ pub fn paint_state(game: &Game) {
     }
 }
 
-fn paint_win_puzzle(game: &Game) {
-    println!("Good job!");
-}
-
 fn paint_player_input(game: &Game) {
     println!(
         "{}: '{}'
-{}
-
-You: 'Heyyy...'
-
-My thoughts:
-{}
-
-Health: {}, Cash:{}, Unused Letters:{}
-Enter a Letter...",
+        {}
+        
+        You: 'Heyyy...'
+        
+        My thoughts:
+        {}
+        
+        Health: {}, Cash:{}, Unused Letters:{}
+        Enter a Letter...",
         game.question,
         game.rnd_greeting,
         game.puzzle.creature_length_hint,
@@ -70,20 +66,12 @@ Enter a Letter...",
         game.cash,
         find_unused_letters(&game.letters_guessed),
     );
-
-    // Render the puzzle and question
-    // paint.status = format!(
-    //     "{}: '{}'\n{}\n\nYou: 'Heyyy...'\n\nMy thoughts:\n{}\n\nHealth: {}, Cash:{}, Unused Letters:{}\nEnter a Letter...",
-    //         game.question,
-    //         game.rnd_greeting,
-    //         game.puzzle.creature_length_hint,
-    //         game.rnd_hint,
-    //         game.health,
-    //         game.cash,
-    //         find_unused_letters(&game.letters_guessed),
-    //     );
 }
 
 fn paint_introduction(game: &Game) {
     println!("{}", &SKIPPABLE_INTRO);
+}
+
+fn paint_win_puzzle(game: &Game) {
+    println!("Good job!");
 }
