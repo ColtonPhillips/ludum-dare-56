@@ -27,26 +27,43 @@ impl Default for Puzzle {
         }
     }
 }
+#[derive(Debug, PartialEq)]
+
+pub enum State {
+    Introduction(),
+    PlayerInput(),
+    WinPuzzle(),
+}
 
 #[derive(Debug)]
 pub struct Game {
+    pub puzzle: Puzzle,
+    pub state: State,
     pub question: String,
     pub letters_guessed: String,
     pub health: usize,
     pub cash: usize,
     pub hints_unlocked: usize,
     pub bisect_cost: usize,
+    pub rnd_greeting: String,
+    pub rnd_hints: Vec<String>,
+    pub rnd_hint: String,
 }
 
 impl Default for Game {
     fn default() -> Self {
         Game {
+            puzzle: Puzzle::default(),
+            state: State::Introduction(),
             question: String::new(),
             letters_guessed: String::new(),
             health: 100,
             cash: 20,
             hints_unlocked: 0,
             bisect_cost: 15,
+            rnd_greeting: String::new(),
+            rnd_hints: vec![],
+            rnd_hint: String::new(),
         }
     }
 }
