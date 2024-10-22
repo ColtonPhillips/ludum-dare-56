@@ -67,3 +67,38 @@ pub fn calculate_frequency_score(word: String) -> usize {
 pub fn is_question_winning(question: &str) -> bool {
     !question.contains("_")
 }
+
+pub fn find_unused_letters(used: &str) -> String {
+    // Create a set of all capitalized letters A-Z
+    let all_letters: HashSet<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
+
+    // Create a set of the used letters from the input string
+    let used_letters: HashSet<char> = used.chars().collect();
+
+    // Find the unused letters by subtracting used from all
+    let unused_letters: HashSet<char> = all_letters.difference(&used_letters).cloned().collect();
+
+    // Sort the remaining unused letters and collect them into a String
+    let mut unused_vec: Vec<char> = unused_letters.into_iter().collect();
+    unused_vec.sort();
+
+    unused_vec.iter().collect() // Collect the sorted characters back into a string
+}
+
+// fn sort_string_alphabetically(s: &str) -> String {
+//     let mut chars: Vec<char> = s.chars().collect(); // Convert string to vector of characters
+//     chars.sort(); // Sort the characters
+//     chars.into_iter().collect() // Collect the sorted characters back into a string
+// }
+
+//  just putting this shit here.
+
+// fn select_random_puzzle(puzzles: &Vec<Puzzle>) -> Option<&Puzzle> {
+//     if puzzles.is_empty() {
+//         return None; // If the Vec is empty, return None
+//     }
+
+//     let mut rng = rand::thread_rng(); // Create a random number generator
+//     let random_index = rng.gen_range(0..puzzles.len()); // Generate a random index within the vector bounds
+//     Some(&puzzles[random_index]) // Return the puzzle at the random index
+// }

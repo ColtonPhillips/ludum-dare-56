@@ -46,15 +46,3 @@ pub const RULESET: &str = "
  Press Enter to greet the first member
  of the Tiny Creature Support Group (I hope they brought snacks!)
  ";
-
-//  just putting this shit here.
-
-// fn select_random_puzzle(puzzles: &Vec<Puzzle>) -> Option<&Puzzle> {
-//     if puzzles.is_empty() {
-//         return None; // If the Vec is empty, return None
-//     }
-
-//     let mut rng = rand::thread_rng(); // Create a random number generator
-//     let random_index = rng.gen_range(0..puzzles.len()); // Generate a random index within the vector bounds
-//     Some(&puzzles[random_index]) // Return the puzzle at the random index
-// }

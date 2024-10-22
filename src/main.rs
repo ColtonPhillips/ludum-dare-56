@@ -1,16 +1,14 @@
 mod copy;
 mod creatures;
 mod model;
+mod paint;
 mod puzzle;
 mod tunes;
 
 use creatures::*;
-use crossterm::{
-    cursor::{Hide, MoveTo, Show},
-    terminal::{Clear, ClearType},
-    ExecutableCommand,
-};
+
 use model::*;
+use paint::*;
 use puzzle::*;
 use rand::{seq::SliceRandom, Rng};
 
@@ -243,48 +241,4 @@ fn wait_for_user_input() {
     let stdin = io::stdin();
     // We get `Stdin` here.
     stdin.read_line(&mut input).unwrap();
-}
-
-// fn sort_string_alphabetically(s: &str) -> String {
-//     let mut chars: Vec<char> = s.chars().collect(); // Convert string to vector of characters
-//     chars.sort(); // Sort the characters
-//     chars.into_iter().collect() // Collect the sorted characters back into a string
-// }
-
-fn find_unused_letters(used: &str) -> String {
-    // Create a set of all capitalized letters A-Z
-    let all_letters: HashSet<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
-
-    // Create a set of the used letters from the input string
-    let used_letters: HashSet<char> = used.chars().collect();
-
-    // Find the unused letters by subtracting used from all
-    let unused_letters: HashSet<char> = all_letters.difference(&used_letters).cloned().collect();
-
-    // Sort the remaining unused letters and collect them into a String
-    let mut unused_vec: Vec<char> = unused_letters.into_iter().collect();
-    unused_vec.sort();
-
-    unused_vec.iter().collect() // Collect the sorted characters back into a string
-}
-
-fn paint_terminal(paint: &Paint) {
-    let _ = io::stdout().execute(Hide);
-    let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
-    let _ = io::stdout().execute(Clear(ClearType::All));
-    let _ = io::stdout().execute(Show);
-
-    println!(
-        "{}\n\n{}\n{}\n",
-        &paint.intro, &paint.status, &paint.answer_result
-    );
-}
-
-fn paint_terminal_winning_game(paint: &Paint) {
-    let _ = io::stdout().execute(Hide);
-    let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
-    let _ = io::stdout().execute(Clear(ClearType::All));
-    let _ = io::stdout().execute(Show);
-
-    println!("{}", &paint.answer_result);
 }
