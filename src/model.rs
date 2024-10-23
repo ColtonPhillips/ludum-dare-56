@@ -33,6 +33,7 @@ pub enum State {
     Introduction(),
     PlayerInput(),
     WinPuzzle(),
+    QuitGame(),
 }
 
 #[derive(Debug)]
@@ -48,6 +49,8 @@ pub struct Game {
     pub rnd_greeting: String,
     pub rnd_hints: Vec<String>,
     pub rnd_hint: String,
+    pub result: String,
+    pub guess: String,
 }
 
 impl Default for Game {
@@ -64,6 +67,8 @@ impl Default for Game {
             rnd_greeting: String::new(),
             rnd_hints: vec![],
             rnd_hint: String::new(),
+            result: String::new(),
+            guess: String::new(),
         }
     }
 }

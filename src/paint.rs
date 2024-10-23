@@ -39,25 +39,26 @@ pub fn paint_state(game: &Game) {
         State::WinPuzzle() => {
             paint_win_puzzle(game);
         }
-
         State::PlayerInput() => {
             paint_player_input(game);
         }
+        _ => {}
     }
 }
 
 fn paint_player_input(game: &Game) {
     println!(
         "{}: '{}'
-        {}
-        
-        You: 'Heyyy...'
-        
-        My thoughts:
-        {}
-        
-        Health: {}, Cash:{}, Unused Letters:{}
-        Enter a Letter...",
+{}
+
+You: 'Heyyy...'
+
+My thoughts:
+{}
+
+Health: {}, Cash:{}, Unused Letters:{}
+Enter a Letter...
+{}",
         game.question,
         game.rnd_greeting,
         game.puzzle.creature_length_hint,
@@ -65,6 +66,7 @@ fn paint_player_input(game: &Game) {
         game.health,
         game.cash,
         find_unused_letters(&game.letters_guessed),
+        game.result
     );
 }
 
