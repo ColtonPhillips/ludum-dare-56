@@ -9,23 +9,6 @@ use crossterm::{
 };
 use std::io;
 
-pub fn paint_terminal(paint: &Paint) {
-    let _ = io::stdout().execute(Hide);
-    let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
-    let _ = io::stdout().execute(Clear(ClearType::All));
-    let _ = io::stdout().execute(Show);
-    println!("{}", &paint.status);
-}
-
-pub fn paint_terminal_winning_game(paint: &Paint) {
-    let _ = io::stdout().execute(Hide);
-    let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
-    let _ = io::stdout().execute(Clear(ClearType::All));
-    let _ = io::stdout().execute(Show);
-
-    println!("{}", &paint.answer_result);
-}
-
 pub fn paint_state(game: &Game) {
     let _ = io::stdout().execute(Hide);
     let _ = io::stdout().execute(MoveTo(0, 0)); // Move to the top-left corner
@@ -70,10 +53,14 @@ Enter a Letter...
     );
 }
 
-fn paint_introduction(game: &Game) {
+fn paint_introduction(_game: &Game) {
     println!("{}", &SKIPPABLE_INTRO);
 }
 
 fn paint_win_puzzle(game: &Game) {
-    println!("Good job!");
+    // TODO: hook into random greetings again.
+    println!(
+        "\n\nYou: Hi, {}!\n\n{}:{}\n\nHealth++;\nCash++;\n\n Press Enter to continue",
+        game.puzzle.creature, game.puzzle.creature, "Sup!"
+    );
 }

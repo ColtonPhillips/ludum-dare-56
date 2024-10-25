@@ -90,14 +90,6 @@ pub fn parse_creatures() -> Tokens {
     tokens
 }
 
-pub fn convert_name_to_guess_format(creature: &str) -> String {
-    let guess = creature
-        .chars()
-        .map(|c| if c.is_alphabetic() { '_' } else { c })
-        .collect();
-    guess
-}
-
 pub fn update_question(creature: &str, question: &str, guess: &str) -> String {
     let mut result: Vec<char> = question.chars().collect();
     for (i, c) in creature.chars().enumerate() {
@@ -106,11 +98,4 @@ pub fn update_question(creature: &str, question: &str, guess: &str) -> String {
         }
     }
     result.into_iter().collect()
-}
-
-pub fn fetch_greetings() -> Vec<String> {
-    include_str!("greetings.txt")
-        .lines()
-        .map(|lines| lines.trim().to_string())
-        .collect()
 }
