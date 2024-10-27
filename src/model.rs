@@ -33,6 +33,7 @@ impl Default for Puzzle {
 
 pub enum State {
     Introduction(),
+    Ruleset(),
     SetupAPuzzle(),
     PlayerInput(),
     WinPuzzle(),

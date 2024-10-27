@@ -61,9 +61,11 @@ fn update_state(game: &mut Game, input: &str) {
     match game.state {
         State::QuitGame() => {}
         State::Introduction() => {
-            game.state = State::SetupAPuzzle();
+            game.state = State::Ruleset();
+            game.setup_a_puzzle_meh(); // hack: ask colton
             game.update_puzzle_meh();
         }
+        State::Ruleset() => game.state = State::PlayerInput(),
         State::SetupAPuzzle() => {
             game.setup_a_puzzle_meh();
             game.state = State::PlayerInput();
@@ -78,6 +80,7 @@ fn update_state(game: &mut Game, input: &str) {
         State::PlayerInput() => {
             match input {
                 "" => {}
+                _ if input.contains("HELP") => game.state = State::Ruleset(),
                 _ if input.contains("BUY") => {
                     if game.cash < game.bisect_cost {
                         game.result = format!(

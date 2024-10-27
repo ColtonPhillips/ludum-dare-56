@@ -19,6 +19,9 @@ pub fn paint_state(game: &Game) {
         State::Introduction() => {
             paint_introduction(game);
         }
+        State::Ruleset() => {
+            paint_ruleset(game);
+        }
         State::WinPuzzle() => {
             paint_win_puzzle(game);
         }
@@ -31,17 +34,19 @@ pub fn paint_state(game: &Game) {
 
 fn paint_player_input(game: &Game) {
     println!(
-        "{}: '{}'
+        "A {} looks up at you eagerly:
+
+  {}: '{}'
+  {}
+
+  You: 'Heyyy...'
+
+Your errant thoughts:
 {}
-
-You: 'Heyyy...'
-
-My thoughts:
-{}
-
 Health: {}, Cash:{}, Unused Letters:{}
-Enter a Letter...
+Enter Letter, 'BUY', 'HELP', or 'QUIT':
 {}",
+        game.question,
         game.question,
         game.rnd_greeting,
         game.puzzle.creature_length_hint,
@@ -55,6 +60,38 @@ Enter a Letter...
 
 fn paint_introduction(_game: &Game) {
     println!("{}", &SKIPPABLE_INTRO);
+}
+
+fn paint_ruleset(game: &Game) {
+    println!(
+        "   You find yourself at a support group
+   for SMALL CREATURES with {} bucks
+   in your pocket. Happy members line 
+   up eagerly to be greeted by YOU. 
+      
+RULES:
+  Remember the name of each creature(s):
+      
+    (e.g. 'PUPPIES' 
+    has 3 'P's, 1 'U', and 1 'Y')
+    (e.g. 'TWEETY'
+    has 2 'T's, 2 'E's, 1 'W', and 1 'Y')
+      
+  Looking at each creature will give you
+  errant thoughts (e.g. \"This guy is cool!\")
+      
+  Don't make too many mistakes or people
+  will think that you're a bit of a narcissist.
+    
+Controls: 
+  'L' (Any Letter) Guess a letter of their name
+  'BUY' For ${}, remove some unguessed letters
+  'HELP' - Open this help menu  
+  'QUIT' to leave at any time.
+  
+Press Enter to proceed",
+        game.cash, game.bisect_cost
+    );
 }
 
 fn paint_win_puzzle(game: &Game) {
