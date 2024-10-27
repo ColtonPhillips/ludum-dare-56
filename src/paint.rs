@@ -44,6 +44,7 @@ fn paint_player_input(game: &Game) {
 Your errant thoughts:
 {}
 Health: {}, Cash:{}, Unused Letters:{}
+
 Enter Letter, 'BUY', 'HELP', or 'QUIT':
 {}",
         game.question,
@@ -97,7 +98,18 @@ Press Enter to proceed",
 fn paint_win_puzzle(game: &Game) {
     // TODO: hook into random greetings again.
     println!(
-        "\n\nYou: Hi, {}!\n\n{}:{}\n\nHealth++;\nCash++;\n\n Press Enter to continue",
+        "
+  Success! You remembered who they are!
+        
+    You: Hi, {}!
+
+    {}: {}
+
+     - Health went up!
+     - Earned some Cash!
+
+  Press Enter to continue
+  ",
         game.puzzle.creature, game.puzzle.creature, "Sup!"
     );
 }
