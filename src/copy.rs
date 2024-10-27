@@ -17,8 +17,8 @@ pub const SKIPPABLE_INTRO: &str = "
       ============================= 
  
 
-      
-  You find yourself at a support group
+
+   You find yourself at a support group
     for tiny creatures with 20 bucks
              in your pocket.
 
