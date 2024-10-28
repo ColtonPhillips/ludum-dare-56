@@ -80,6 +80,7 @@ fn update_state(game: &mut Game, input: &str) {
         State::PlayerInput() => {
             match input {
                 "" => {}
+                _ if input.contains("QUIT") => game.state = State::QuitGame(),
                 _ if input.contains("HELP") => game.state = State::Ruleset(),
                 _ if input.contains("BUY") => {
                     if game.cash < game.bisect_cost {
