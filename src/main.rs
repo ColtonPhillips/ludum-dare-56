@@ -15,9 +15,9 @@ use rand::{seq::SliceRandom, Rng};
 use std::{collections::HashSet, io, process};
 
 fn main() -> io::Result<()> {
-    if cfg!(feature = "audio") {
-        tunes::play_bg_music();
-    }
+    // if cfg!(feature = "audio") {
+    tunes::play_bg_music();
+    // }
 
     // Get this party started
     let selected_puzzles = fetch_selected_puzzles();
