@@ -63,7 +63,8 @@ pub fn fetch_puzzles() -> Puzzles {
 }
 
 pub fn parse_creatures() -> Tokens {
-    let creatures = include_str!("creatures.txt");
+    // Going to filter my old content into a new better controlled one
+    let creatures = include_str!("creatures_early_access.txt");
     let mut tokens: Tokens = Tokens::new();
     for line in creatures.lines() {
         match line {
